@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{"path": "./dev"},
+		{"path": "./GP"},
+		{"path": "./AmbienteTest"},
+		{"path": "."}
+	],
+	"settings": {
+		"nuxt.isNuxtApp": false,
+		
+	}
+}
