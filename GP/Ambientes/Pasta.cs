@@ -29,6 +29,7 @@ namespace GP
 		public Pasta(Meta meta) : base(meta)
 		{
 		}
+		
 		public Pasta(string Nome){
 			this.Nome =  Nome;
 		}

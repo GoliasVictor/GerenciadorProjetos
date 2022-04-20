@@ -15,7 +15,7 @@ namespace GP
 			return JsonSerializer.Deserialize<JsonElement>(json);
 		}
 		static void TestJsonToMetaCompleto(){
-			var meta = JsonParser.JsonToMeta(SerializarJson(
+			var meta = DotMetaManager.JsonToMeta(SerializarJson(
 			  @"{
 					""Nome"": ""FamiliaJoguim"",
 					""Tipo"": ""Cavalo"",
@@ -30,7 +30,7 @@ namespace GP
 			
 			var ambiente = meta.ToAmbiente();
 			Console.WriteLine(meta);
-			Console.WriteLine(JsonParser.MetaToJson(meta));
+			Console.WriteLine(DotMetaManager.MetaToJson(meta));
 		}
 		static void TestCriacao(){
 			var pasta = new Pasta("Carlos"){
@@ -40,7 +40,7 @@ namespace GP
 				pasta.Criar();
 			}
 			catch (MetaJaExisteException){ 
-				pasta.FileMetadados.Delete();
+				DotMetaManager.FileMetadados(pasta.Diretorio).Delete();
 				pasta.Diretorio.Delete();
 				pasta.Criar();
 			}

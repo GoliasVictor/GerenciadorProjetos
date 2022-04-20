@@ -17,7 +17,8 @@ namespace GP.CLI {
             if(strRaiz is null)
                 return;
             Raiz = new DirectoryInfo(strRaiz);
-            var argumentos = args.Length > 0 ?  args : "l prj".Split();
+
+            var argumentos = args.Length > 0 ?  args : "l -r ../".Split();
             Parser.Default.ParseArguments<AbrirOptions,CriarOptions,ListarOptions>(argumentos)
                    .WithParsed<AbrirOptions>(Abrir)
                    .WithParsed<CriarOptions>(Criar)

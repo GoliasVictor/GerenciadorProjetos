@@ -13,7 +13,6 @@ namespace GP
 	{
 		public string Nome { get; set; }
 		public string Descricao { get; set; }
-		public FileInfo FileMetadados => Mapeador.FileMetadados(Diretorio);
 		public DirectoryInfo Diretorio { get; set; }
 		public abstract TipoAmbiente Tipo { get; }
 		protected Ambiente(){
@@ -23,7 +22,7 @@ namespace GP
 		{
 			Nome = meta.Nome;
 			Descricao = meta.Descricao;
-			Diretorio =  meta.Origem?.Directory;
+			Diretorio =  meta.Origem;
 		}
 		public override string ToString()
 		{
@@ -40,11 +39,11 @@ namespace GP
 		}
 		public abstract void Abrir();
 		public virtual void Criar(){
-			if(FileMetadados.Exists)	
+			if(DotMetaManager.Default.EhAmbiente(Diretorio))	
 				throw new MetaJaExisteException();
 			Diretorio.Create();
-			string json = JsonParser.MetaToJson(this.ToMeta());	
-			File.WriteAllText(FileMetadados.FullName,json);
+			string json = DotMetaManager.MetaToJson(this.ToMeta());	
+			File.WriteAllText(DotMetaManager.FileMetadados(Diretorio).FullName,json);
 		}
 	}
 }

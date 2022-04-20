@@ -8,33 +8,28 @@ namespace GP
 {
 	public static class Mapeador
 	{
-		public static FileInfo FileMetadados(DirectoryInfo Diretorio)
-		{
-			return new FileInfo(Path.GetFullPath(Path.Combine(Diretorio.FullName, "./.meta")));
-		}
+
 		public static Meta ObterMetadados(string Caminho)
 		{
 			return ObterMetadados(new DirectoryInfo(Caminho));
 		}
-
-		public static Meta ObterMetadados(DirectoryInfo Diretorio)
+		public static Meta ObterMetadados(DirectoryInfo dir)
 		{
+			Meta meta = AllManager.GetMeta(dir);
+			if(meta is not null){
+				meta.Origem = dir;
+				meta.Nome ??= dir.Name;
+				return meta;
+			}
+			return null;
 
-			var FileMetadados = Mapeador.FileMetadados(Diretorio);
-			string stringJsonMeta = null;
-			try
-			{
-				stringJsonMeta = File.ReadAllText(FileMetadados.FullName);
-			}
-			catch (Exception _) when (_ is FileNotFoundException || _ is DirectoryNotFoundException)
-			{
-				throw new MetaInexistenteException();
-			}
-			var meta = JsonParser.JsonToMeta(stringJsonMeta);
-			meta.Origem = FileMetadados;
-			meta.Nome ??= Diretorio.Name;
-			
-			return meta;
+			//foreach (var parser in Parser.Parsers)
+			//{
+			//	if(parser.EhAmbiente(diretorio))
+			//		meta =  parser.GetMeta(diretorio);
+			//}
+
+
 		}
 		public static List<Ambiente> MapearDiretorio(string Raiz)
 		{
@@ -50,10 +45,12 @@ namespace GP
 				try
 				{
 					var meta = ObterMetadados(Dir);
-					var ambiente = meta.ToAmbiente();
-					Ambientes.Add(ambiente);
-					if(ambiente is Pasta pasta)
-						Pastas.Add(pasta);
+					if(meta is not null){
+						var ambiente = meta.ToAmbiente();
+						Ambientes.Add(ambiente);
+						if(ambiente is Pasta pasta)
+							Pastas.Add(pasta);
+					}
 				}
 				catch (MetaInexistenteException)
 				{
@@ -74,10 +71,12 @@ namespace GP
 			foreach (var dir in dirs)
 			{
 				var meta = ObterMetadados(dir);
-				if(meta.Nome.ToLower() == Nome.ToLower())
-					return meta.ToAmbiente();
-				if(meta.Tipo is TipoAmbiente.Pasta)
-					pastas.Add(dir);
+				if(meta is not null){
+					if(meta.Nome.ToLower() == Nome.ToLower())
+						return meta.ToAmbiente();
+					if(meta.Tipo is TipoAmbiente.Pasta)
+						pastas.Add(dir);
+				}
 			}
 			foreach (var pasta in pastas )
 			{

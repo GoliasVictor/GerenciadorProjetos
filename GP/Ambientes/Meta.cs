@@ -14,7 +14,7 @@ namespace GP
 		public string Caminho { get; set; }
 
 		[JsonIgnore]
-		public FileInfo Origem {get;set;}
+		public DirectoryInfo Origem {get;set;}
 		public Ambiente ToAmbiente(){
 			Ambiente Ambiente;
 			switch(Tipo){

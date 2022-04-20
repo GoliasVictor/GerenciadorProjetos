@@ -3,10 +3,32 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
+
 namespace GP
 {
-	public static class JsonParser
+	class DotMetaManager : IManager
 	{
+		DotMetaManager()
+		{
+
+		}
+
+		public static DotMetaManager Default => new DotMetaManager();
+		public static FileInfo FileMetadados(DirectoryInfo Diretorio)
+		{
+			return new FileInfo(Path.GetFullPath(Path.Combine(Diretorio.FullName, "./.meta")));
+		}
+		public bool EhAmbiente(DirectoryInfo dir){
+			return FileMetadados(dir).Exists;
+		}
+		public  Meta GetMeta(DirectoryInfo dir)
+		{
+			var fileMetadados = FileMetadados(dir);
+			string stringJsonMeta = File.ReadAllText(fileMetadados.FullName);
+			var meta = JsonToMeta(stringJsonMeta);
+			return meta;
+		}
 		public static string MetaToJson(Meta meta){
 			var Options = new JsonSerializerOptions{
 				WriteIndented=true,
@@ -20,7 +42,9 @@ namespace GP
 		}
 		public static Meta JsonToMeta(string json)
 		{
-			var JsonElement = JsonSerializer.Deserialize<JsonElement>(json);
+			if(string.IsNullOrWhiteSpace(json))
+				json = "{}";
+			JsonElement JsonElement = JsonSerializer.Deserialize<JsonElement>(json);
 			return JsonToMeta(JsonElement);
 		}
 
@@ -58,23 +82,6 @@ namespace GP
 
 			return meta;
 		}
-
-
-		static JsonElement? GetProp(this IEnumerable<JsonProperty?> json, string name)
-		{
-			var prop = json.FirstOrDefault(p => p?.Name.ToLower() == name.ToLower());
-			return prop?.Value;
-		}
-		static string GetPropString(this IEnumerable<JsonProperty?> json, string name)
-		{
-
-			JsonElement? aux = json.GetProp(name);
-			if (aux is JsonElement valor && valor.ValueKind == JsonValueKind.String)
-				return valor.GetString();
-
-			return null;
-		}
-
 	}
 
 }
