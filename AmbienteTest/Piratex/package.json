@@ -1,0 +1,16 @@
+{
+  "name": "piratex",
+  "version": "1.0.0",
+  "description": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+  "main": "index.js",
+  "scripts": {
+    "test": "TEST.JS"
+  },
+  "keywords": [
+    "ASD",
+    "AS",
+    "DS"
+  ],
+  "author": "DOUGRAS",
+  "license": "ISC"
+}

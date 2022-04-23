@@ -8,11 +8,16 @@ namespace GP
 		
 		Meta GetMeta(DirectoryInfo dir);
 	} 
+
+
 	static class AllManager 
 	{
 
-		public static readonly IManager[] Managers = new []{
-			DotMetaManager.Default
+		public static readonly IManager[] Managers = new IManager[]{
+			DotMetaManager.Default,
+			VsCodeManager.Default,
+			DotNetCoreManager.Default,
+			NPMManger.Default
 		};
 		public static IManager GetManager(DirectoryInfo dir){
 			return null;
@@ -29,7 +34,6 @@ namespace GP
 				return manager.GetMeta(dir);
 			else	
 				return null;
-
 		}
 	}
 

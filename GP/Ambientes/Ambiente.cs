@@ -11,6 +11,7 @@ namespace GP
 	
 	public abstract class Ambiente
 	{
+		//TODO: Adicinoar palavras chaves
 		public string Nome { get; set; }
 		public string Descricao { get; set; }
 		public DirectoryInfo Diretorio { get; set; }
@@ -39,7 +40,7 @@ namespace GP
 		}
 		public abstract void Abrir();
 		public virtual void Criar(){
-			if(DotMetaManager.Default.EhAmbiente(Diretorio))	
+			if(DotMetaManager.EhAmbiente(Diretorio))	
 				throw new MetaJaExisteException();
 			Diretorio.Create();
 			string json = DotMetaManager.MetaToJson(this.ToMeta());	

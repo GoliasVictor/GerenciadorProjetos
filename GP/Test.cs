@@ -1,13 +1,15 @@
 using System;
 using System.IO;
 using System.Text.Json;
+using System.Dynamic;
+
 
 namespace GP
 {
 	static class Test{
 		static readonly string Raiz = "/home/jvsb/Dev/Projetos/GerenciadorProjetos/AmbienteTest";
 		static void TestMapear(){
-			Mapeador.MapearPastaRaiz(Raiz);
+			  Mapeador.MapearPastaRaiz(Raiz);
 		}
 
 		static JsonElement SerializarJson(string json){
@@ -32,26 +34,14 @@ namespace GP
 			Console.WriteLine(meta);
 			Console.WriteLine(DotMetaManager.MetaToJson(meta));
 		}
-		static void TestCriacao(){
-			var pasta = new Pasta("Carlos"){
-				Diretorio = new DirectoryInfo(Path.Combine(Raiz, "Carlos"))
-			};
-			try{
-				pasta.Criar();
-			}
-			catch (MetaJaExisteException){ 
-				DotMetaManager.FileMetadados(pasta.Diretorio).Delete();
-				pasta.Diretorio.Delete();
-				pasta.Criar();
-			}
-
+		static void TestDotNetCoreManager(){
+			
 		}
+
 		public static void Main(string[] args){
 			TestJsonToMetaCompleto();
 			TestMapear();
-				TestCriacao();
-
-			
+			TestDotNetCoreManager();
 		}	
 	}
 }

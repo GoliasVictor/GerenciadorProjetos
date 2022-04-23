@@ -7,7 +7,7 @@
 			"type": "process",
 			"args": [
 				"build",
-				"${workspaceFolder}/gp.cli.csproj",
+				"${workspaceFolder}/GP.CLI.csproj",
 				"/property:GenerateFullPaths=true",
 				"/consoleloggerparameters:NoSummary"
 			],
@@ -19,7 +19,7 @@
 			"type": "process",
 			"args": [
 				"publish",
-				"${workspaceFolder}/gp.cli.csproj",
+				"${workspaceFolder}/GP.CLI.csproj",
 				"/property:GenerateFullPaths=true",
 				"/consoleloggerparameters:NoSummary"
 			],
@@ -33,7 +33,7 @@
 				"watch",
 				"run",
 				"--project",
-				"${workspaceFolder}/gp.cli.csproj"
+				"${workspaceFolder}/GP.CLI.csproj"
 			],
 			"problemMatcher": "$msCompile"
 		}

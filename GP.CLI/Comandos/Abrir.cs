@@ -16,6 +16,7 @@ namespace GP.CLI
             Ambiente ambiente = Mapeador.EncontrarAmbiente(Raiz,op.Nome);
             if(ambiente is null){
                 Console.WriteLine("Projeto não encontrado");
+                return;
             }
             ambiente.Abrir();
         }

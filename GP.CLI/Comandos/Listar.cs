@@ -7,16 +7,17 @@ using CommandLine.Text;
 
 namespace GP.CLI
 {
+
 	[Verb("listar", aliases: new[] { "l" })]
 	class ListarOptions
 	{
-		[Value(0, MetaName = "tipo")]
-		public OptionTipoAmbiente Tipo { get; set; }
 		[Option('p', "pasta")]
 		public string NomePasta { get; set; }
 
 		[Option('r', "raiz")]
 		public string Raiz { get; set; }
+		[Option('t',"tipo maximo", Default =  OptionTipoAmbiente.prj, HelpText ="Profundidade maxima da listagem, pas: apenas pastas, prj: pastas e projetos, sprj: pastas, projetos e subprojetos")]
+		public OptionTipoAmbiente profundidade {get;set;}
 	}
 	partial class Program
 	{
@@ -29,7 +30,7 @@ namespace GP.CLI
 			{
 				raiz = new DirectoryInfo(op.Raiz);
 			}
-			if (raiz.Exists)
+			if (!raiz.Exists)
 			{
 				Console.Error.WriteLine("Raiz não existe");
 				return;
@@ -57,10 +58,10 @@ namespace GP.CLI
 			Pasta Pasta = Mapeador.MapearPastaRaiz(raiz);
 
 			string Resultado;
-			if (op.Tipo == OptionTipoAmbiente.pas)
+			if (op.profundidade == OptionTipoAmbiente.pas)
 				Resultado = ListarPastas(Pasta, 0);
 			else
-				Resultado = Listar(Pasta, 0);
+				Resultado = Listar(Pasta, 0,op.profundidade == OptionTipoAmbiente.sprj);
 
 			if (string.IsNullOrWhiteSpace(Resultado))
 				Console.WriteLine("Nada encontrado");
@@ -75,22 +76,33 @@ namespace GP.CLI
 			{
 				SB.Append(new string(' ', nivel));
 				SB.Append(ambiente.Nome);
-				SB.Append("\n");
+				SB.AppendLine();
+
 				if (ambiente is Pasta PastaFilha)
 					SB.Append(ListarPastas(PastaFilha, nivel + 1));
 			}
 			return SB.ToString();
 		}
-		static string Listar(Pasta pasta, int nivel)
+		static string Listar(Pasta pasta, int nivel, bool IncluirSubProjetos )
 		{
 			var SB = new StringBuilder();
 			foreach (var ambiente in pasta.Ambientes)
 			{
 				SB.Append(new string(' ', nivel));
 				SB.Append(ambiente.Nome);
-				SB.Append("\n");
+				SB.AppendLine();
 				if (ambiente is Pasta PastaFilha)
-					SB.Append(Listar(PastaFilha, nivel + 1));
+					SB.Append(Listar(PastaFilha, nivel + 1, IncluirSubProjetos));
+					
+				else if(IncluirSubProjetos && ambiente is Projeto projeto && projeto.SubProjetos is not null){
+					foreach (var subProjeto in projeto.SubProjetos)
+					{
+						SB.Append(new string(' ', nivel == 0 ? 0 : nivel-1));
+						SB.Append(" + ");
+						SB.Append(subProjeto.Nome);
+						SB.AppendLine();
+					}
+				}
 			}
 			return SB.ToString();
 		}

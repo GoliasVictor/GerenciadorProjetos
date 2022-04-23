@@ -5,8 +5,13 @@ using System.Text.Json;
 
 namespace GP
 {
-	static class JsonHelper 
+	static class JsonHelper
 	{
+		public static readonly JsonSerializerOptions Options = new JsonSerializerOptions()
+		{
+			ReadCommentHandling = JsonCommentHandling.Skip,
+			AllowTrailingCommas = true,
+		};
 		public static JsonElement? GetProp(this IEnumerable<JsonProperty?> json, string name)
 		{
 			var prop = json.FirstOrDefault(p => p?.Name.ToLower() == name.ToLower());
@@ -20,6 +25,10 @@ namespace GP
 				return valor.GetString();
 
 			return null;
+		}
+		public static IEnumerable<JsonProperty?> ToCollection(this JsonElement json)
+		{
+			return json.EnumerateObject().Select(p => (JsonProperty?)p);
 		}
 	}
 }

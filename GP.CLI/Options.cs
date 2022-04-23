@@ -3,12 +3,11 @@ using CommandLine;
 
 namespace GP
 {
-
-
-	[Flags]
+		[Flags]
 	 enum OptionTipoAmbiente{
-		 prj = 0b1,
-		 pas = 0b10,
+		 pas = 0,
+		 prj = 1,
+		 sprj = 2
 	 }
 
 }

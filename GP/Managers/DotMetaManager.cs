@@ -15,20 +15,24 @@ namespace GP
 		}
 
 		public static DotMetaManager Default => new DotMetaManager();
-		public static FileInfo FileMetadados(DirectoryInfo Diretorio)
-		{
-			return new FileInfo(Path.GetFullPath(Path.Combine(Diretorio.FullName, "./.meta")));
+
+		protected static string pathMetaFile => "./.meta";
+		public static FileInfo FileMetadados(DirectoryInfo dir){
+			return dir.GetFile(pathMetaFile);
 		}
-		public bool EhAmbiente(DirectoryInfo dir){
-			return FileMetadados(dir).Exists;
-		}
-		public  Meta GetMeta(DirectoryInfo dir)
+		public static bool EhAmbiente(DirectoryInfo dir)
 		{
-			var fileMetadados = FileMetadados(dir);
-			string stringJsonMeta = File.ReadAllText(fileMetadados.FullName);
-			var meta = JsonToMeta(stringJsonMeta);
+			return dir.GetFile(pathMetaFile).Exists;
+		}
+		bool IManager.EhAmbiente(DirectoryInfo dir) => EhAmbiente(dir);
+		
+		public static Meta GetMeta(DirectoryInfo dir)
+		{
+			var meta = JsonToMeta(dir.GetFile(pathMetaFile).ReadAllText());
 			return meta;
 		}
+		Meta IManager.GetMeta(DirectoryInfo dir) => GetMeta(dir);
+
 		public static string MetaToJson(Meta meta){
 			var Options = new JsonSerializerOptions{
 				WriteIndented=true,
@@ -44,9 +48,10 @@ namespace GP
 		{
 			if(string.IsNullOrWhiteSpace(json))
 				json = "{}";
-			JsonElement JsonElement = JsonSerializer.Deserialize<JsonElement>(json);
+			JsonElement JsonElement = JsonSerializer.Deserialize<JsonElement>(json,JsonHelper.Options);
 			return JsonToMeta(JsonElement);
 		}
+
 
 		public static Meta JsonToMeta(JsonElement json)
 		{

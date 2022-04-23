@@ -18,7 +18,7 @@ namespace GP.CLI {
                 return;
             Raiz = new DirectoryInfo(strRaiz);
 
-            var argumentos = args.Length > 0 ?  args : "l -r ../".Split();
+            var argumentos = args.Length > 0 ?  args : "l -t 2 -r /home/jvsb/Dev/Projetos".Split();
             Parser.Default.ParseArguments<AbrirOptions,CriarOptions,ListarOptions>(argumentos)
                    .WithParsed<AbrirOptions>(Abrir)
                    .WithParsed<CriarOptions>(Criar)
