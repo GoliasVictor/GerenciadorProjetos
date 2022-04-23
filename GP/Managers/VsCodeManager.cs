@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using System.Text.Json;
@@ -8,6 +7,9 @@ namespace GP
 {
 	class VsCodeManager : IManager
 	{
+		record MetaVsCode(
+			(string path, string name)[] folders
+		);
 		VsCodeManager()
 		{
 
@@ -37,39 +39,29 @@ namespace GP
 			string json = file.ReadAllText();
 			if (string.IsNullOrWhiteSpace(json))
 				throw new MetadadosInvalidosException();
-
-			var jsonObject = JsonSerializer.Deserialize<JsonElement>(json,JsonHelper.Options).ToCollection();
-
-			List<Meta> SubProjetos = new List<Meta>();
-			JsonElement? foldersOrNull = jsonObject.GetProp("folders");
-			if (foldersOrNull is JsonElement folders)
+			MetaVsCode metaVsCode;
+			try {
+				metaVsCode = JsonSerializer.Deserialize<MetaVsCode>(json,JsonHelper.Options);
+			}
+			catch(Exception e){
+				throw new MetadadosInvalidosException(null, e);
+			}
+			var SubProjetos = metaVsCode.folders?.Select((folder)=>
 			{
-				if (folders.ValueKind != JsonValueKind.Array)
+				if (folder.path is null || Path.IsPathRooted(folder.path))
 					throw new MetadadosInvalidosException();
 
-				foreach (var folderElement in folders.EnumerateArray())
+				var SubProjDir = dir.GetDirectory(folder.path);
+				
+				if(!SubProjDir.Exists)
+					throw new MetadadosInvalidosException();
+
+				return new Meta()
 				{
-					if (folderElement.ValueKind != JsonValueKind.Object)
-						throw new MetadadosInvalidosException();
-
-					var folder = folderElement.ToCollection();
-					string strPath = folder.GetPropString("path");
-					if (strPath is null || Path.IsPathRooted(strPath))
-						throw new MetadadosInvalidosException();
-
-					var SubProjDir = dir.GetDirectory(strPath);
-
-					if(!SubProjDir.Exists)
-						throw new MetadadosInvalidosException();
-
-					string nome = folder.GetPropString("name");
-					SubProjetos.Add(new Meta()
-					{
-						Nome = nome ?? SubProjDir.Name,
-						Caminho = SubProjDir.FullName
-					});
-				}
-			}
+					Nome = folder.name ?? SubProjDir.Name,
+					Caminho = SubProjDir.FullName
+				};
+			});
 			var meta = new Meta()
 			{
 				Nome = Path.GetFileNameWithoutExtension(file.Name),

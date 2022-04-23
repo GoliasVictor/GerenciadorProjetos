@@ -1,14 +1,17 @@
 using System;
 using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Collections.Generic;
-using System.Linq;
 using System.IO;
 
 namespace GP
 {
+
 	class NPMManger : IManager
 	{
+	
+		private record NPMMeta (
+			string name,
+			string description
+		);
 		NPMManger()
 		{
 
@@ -23,8 +26,6 @@ namespace GP
 		{
 			return dir.GetFile(pathMetaFile).Exists;
 		}
-		
-
 
 		public Meta GetMeta(DirectoryInfo dir)
 		{
@@ -32,12 +33,17 @@ namespace GP
 
 			if(string.IsNullOrWhiteSpace(json))
 				throw new MetadadosInvalidosException();
-
-			var jsonObject = JsonSerializer.Deserialize<JsonElement>(json,JsonHelper.Options).ToCollection();
+			NPMMeta npmMeta;
+			try {
+				npmMeta = JsonSerializer.Deserialize<NPMMeta>(json,JsonHelper.Options);
+			}
+			catch (Exception e) {
+				throw new MetadadosInvalidosException(null, e);
+			}
 			var meta = new Meta()
 			{
-				Nome = jsonObject.GetPropString("name"),
-				Descricao = jsonObject.GetPropString("description"),
+				Nome = npmMeta.name,
+				Descricao = npmMeta.description,
 				Linguagem = "js"
 			};
 			return meta;
@@ -47,6 +53,7 @@ namespace GP
 			//		if(scripts.ToCollection().GetProp("start") is not null)
 			//			meta.ComandoRodar="npm start"
 		}
+
 	}
 
 }
