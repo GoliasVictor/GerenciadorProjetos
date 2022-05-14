@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace GP
 {
+	//To-do Adicionar Scripts
 	public class Meta
 	{
 		public string Nome { get; set; }

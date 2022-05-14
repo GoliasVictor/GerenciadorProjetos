@@ -1,43 +1,46 @@
 using System;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
-using CommandLine;
-using CommandLine.Text;
+using Spectre.Console.Cli;
+using Spectre.Console;
 
 namespace GP.CLI
 {
 
-	[Verb("listar", aliases: new[] { "l" })]
-	class ListarOptions
-	{
-		[Option('p', "pasta")]
-		public string NomePasta { get; set; }
 
-		[Option('r', "raiz")]
-		public string Raiz { get; set; }
-		[Option('t',"tipo maximo", Default =  OptionTipoAmbiente.prj, HelpText ="Profundidade maxima da listagem, pas: apenas pastas, prj: pastas e projetos, sprj: pastas, projetos e subprojetos")]
-		public OptionTipoAmbiente profundidade {get;set;}
-	}
-	partial class Program
+
+	sealed class ComandoListar : Command<ComandoListar.Settings>
 	{
-		static void Listar(ListarOptions op)
+			public sealed class Settings : RootSettings
+			{
+				[CommandOption("-p|--pasta")]
+				public string NomePasta { get; set; }
+
+	
+				
+				[Description("Profundidade maxima da listagem, pas: apenas pastas, prj: pastas e projetos, sprj: pastas, projetos e subprojetos")]
+				[CommandOption("-t|--tipo-maximo")]
+				[DefaultValue(OptionTipoAmbiente.prj)]
+				public OptionTipoAmbiente profundidade {get;set;}
+			}
+		public override int Execute(CommandContext context, Settings settings)
 		{
 
-			DirectoryInfo raiz = Raiz;
+			var raiz =  ((DadosContexto)context.Data).Raiz;
 
-			if (op.Raiz is not null)
-			{
-				raiz = new DirectoryInfo(op.Raiz);
-			}
+			if (settings.Raiz is not null)
+				raiz = new DirectoryInfo(settings.Raiz);
+				
 			if (!raiz.Exists)
 			{
 				Console.Error.WriteLine("Raiz não existe");
-				return;
+				return -1;
 			}
-			if (op.NomePasta is not null)
+			if (settings.NomePasta is not null)
 			{
-				var pasta = Mapeador.EncontrarAmbiente(raiz, op.NomePasta);
+				var pasta = Mapeador.EncontrarAmbiente(raiz, settings.NomePasta);
 				if (pasta is Pasta)
 				{
 					raiz = pasta.Diretorio;
@@ -49,63 +52,46 @@ namespace GP.CLI
 						Erro = "Nome de Ambiente apontado não é uma pasta";
 					else
 						Erro = "Pasta não existe ou não possui metadados";
-					Console.Error.WriteLine(Erro);
-					return;
+					AnsiConsole.MarkupLine(Erro);
+					return -1;
 				}
 
 			}
 
 			Pasta Pasta = Mapeador.MapearPastaRaiz(raiz);
 
-			string Resultado;
-			if (op.profundidade == OptionTipoAmbiente.pas)
-				Resultado = ListarPastas(Pasta, 0);
-			else
-				Resultado = Listar(Pasta, 0,op.profundidade == OptionTipoAmbiente.sprj);
+			var TreeRoot = new Tree(raiz.Name)
+				.Guide(TreeGuide.BoldLine);
 
-			if (string.IsNullOrWhiteSpace(Resultado))
-				Console.WriteLine("Nada encontrado");
+
+			if (settings.profundidade == OptionTipoAmbiente.pas)
+				ListarPastas(Pasta, TreeRoot);
 			else
-				Console.WriteLine(Resultado);
+				Listar(Pasta,TreeRoot,settings.profundidade == OptionTipoAmbiente.sprj);
+
+			AnsiConsole.Write(TreeRoot);
+
+			return 0;
 		}
 
-		static string ListarPastas(Pasta pasta, int nivel)
+		static void ListarPastas(Pasta pasta, IHasTreeNodes tree)
 		{
-			var SB = new StringBuilder();
-			foreach (var ambiente in pasta.Ambientes.OfType<Pasta>())
-			{
-				SB.Append(new string(' ', nivel));
-				SB.Append(ambiente.Nome);
-				SB.AppendLine();
-
-				if (ambiente is Pasta PastaFilha)
-					SB.Append(ListarPastas(PastaFilha, nivel + 1));
-			}
-			return SB.ToString();
+			foreach (var subPasta in pasta.Ambientes.OfType<Pasta>())
+				ListarPastas(subPasta, tree.AddNode($"[blue]{subPasta.Nome}[/]"));
 		}
-		static string Listar(Pasta pasta, int nivel, bool IncluirSubProjetos )
+		static void Listar(Pasta pasta, IHasTreeNodes tree, bool IncluirSubProjetos )
 		{
-			var SB = new StringBuilder();
 			foreach (var ambiente in pasta.Ambientes)
 			{
-				SB.Append(new string(' ', nivel));
-				SB.Append(ambiente.Nome);
-				SB.AppendLine();
-				if (ambiente is Pasta PastaFilha)
-					SB.Append(Listar(PastaFilha, nivel + 1, IncluirSubProjetos));
-					
-				else if(IncluirSubProjetos && ambiente is Projeto projeto && projeto.SubProjetos is not null){
-					foreach (var subProjeto in projeto.SubProjetos)
-					{
-						SB.Append(new string(' ', nivel == 0 ? 0 : nivel-1));
-						SB.Append(" + ");
-						SB.Append(subProjeto.Nome);
-						SB.AppendLine();
-					}
+				if (ambiente is Pasta subPasta)
+					Listar(subPasta, tree.AddNode($"[blue]{subPasta.Nome}[/]"), IncluirSubProjetos);
+				else {
+					var NodeProjeto = tree.AddNode(ambiente.Nome);
+					if(IncluirSubProjetos && ambiente is Projeto projeto && projeto.SubProjetos is not null)
+						foreach (var subProjeto in projeto.SubProjetos)
+							NodeProjeto.AddNode($"[yellow]+{subProjeto.Nome}[/]");
 				}
 			}
-			return SB.ToString();
 		}
-
 	}
 }

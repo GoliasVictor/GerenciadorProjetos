@@ -42,20 +42,23 @@ namespace GP
 			var Pastas =  new List<Pasta>();
 			foreach (var Dir in Dirs)
 			{
+				Meta meta;
 				try
 				{
-					var meta = ObterMetadados(Dir);
-					if(meta is not null){
-						var ambiente = meta.ToAmbiente();
-						Ambientes.Add(ambiente);
-						if(ambiente is Pasta pasta)
-							Pastas.Add(pasta);
-					}
+					meta = ObterMetadados(Dir);
 				}
 				catch (MetadadosInvalidosException) 
 				{
-
+					continue;
 				}
+				if(meta is null)
+					continue;
+				var ambiente = meta.ToAmbiente();
+				Ambientes.Add(ambiente);
+				if(ambiente is Pasta pasta)
+					Pastas.Add(pasta);
+					
+
 			}
 			//Parallel.ForEach(Pastas,(pasta)=>{
 			//	pasta.Ambientes = MapearDiretorio(pasta.Diretorio);
@@ -70,13 +73,21 @@ namespace GP
 			var pastas = new List<DirectoryInfo>();
 			foreach (var dir in dirs)
 			{
-				var meta = ObterMetadados(dir);
-				if(meta is not null){
-					if(meta.Nome.ToLower() == Nome.ToLower())
-						return meta.ToAmbiente();
-					if(meta.Tipo is TipoAmbiente.Pasta)
-						pastas.Add(dir);
+				Meta meta;
+				try
+				{
+					meta = ObterMetadados(dir);
 				}
+				catch (MetadadosInvalidosException)
+				{
+					continue;
+				}
+				if(meta is null)
+					continue;
+				if(meta.Nome.ToLower() == Nome.ToLower())
+					return meta.ToAmbiente();
+				if(meta.Tipo is TipoAmbiente.Pasta)
+					pastas.Add(dir);
 			}
 			foreach (var pasta in pastas )
 			{

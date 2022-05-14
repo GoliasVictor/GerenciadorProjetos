@@ -1,18 +1,20 @@
 using System;
-using CommandLine;
+using Spectre.Console.Cli;
+
 namespace GP.CLI
 {
 	
-	[Verb("criar",aliases:new[]{"c"})]
-	public class CriarOptions
-	{
-	
-		[Value(0)]
-		public string Nome {get;set;}
-	}
-	static partial class Program{
-		static void Criar(CriarOptions op){
-			Console.WriteLine(op.Nome);
+	class ComandoCriar : Command<ComandoCriar.Settings>{
+		public sealed class Settings : RootSettings
+		{
+        	[CommandArgument(0, "<PROJETO>")]
+			public string Nome { get; set; }
+		}
+		public override int Execute(CommandContext context, Settings settings)
+		{
+			var Contexto =  (DadosContexto)context.Data;
+			Console.WriteLine(settings.Nome);
+			return 0;
 		}
 	} 
 

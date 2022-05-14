@@ -1,9 +1,8 @@
 using System;
-using CommandLine;
 
 namespace GP
 {
-		[Flags]
+	[Flags]
 	 enum OptionTipoAmbiente{
 		 pas = 0,
 		 prj = 1,

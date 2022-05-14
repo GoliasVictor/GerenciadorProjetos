@@ -1,0 +1,5 @@
+<Project>
+ <PropertyGroup>
+   <DefineConstants>TEST</DefineConstants>
+ </PropertyGroup>
+</Project>
