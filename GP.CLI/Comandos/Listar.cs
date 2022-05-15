@@ -15,6 +15,7 @@ namespace GP.CLI
 	{
 			public sealed class Settings : RootSettings
 			{
+				//substituir por commandArgument
 				[CommandOption("-p|--pasta")]
 				public string NomePasta { get; set; }
 
@@ -24,20 +25,13 @@ namespace GP.CLI
 				[CommandOption("-t|--tipo-maximo")]
 				[DefaultValue(OptionTipoAmbiente.prj)]
 				public OptionTipoAmbiente profundidade {get;set;}
+
 			}
+
+
 		public override int Execute(CommandContext context, Settings settings)
 		{
-
-			var raiz =  ((DadosContexto)context.Data).Raiz;
-
-			if (settings.Raiz is not null)
-				raiz = new DirectoryInfo(settings.Raiz);
-				
-			if (!raiz.Exists)
-			{
-				Console.Error.WriteLine("Raiz não existe");
-				return -1;
-			}
+			var raiz = settings.Raiz;
 			if (settings.NomePasta is not null)
 			{
 				var pasta = Mapeador.EncontrarAmbiente(raiz, settings.NomePasta);
@@ -52,16 +46,15 @@ namespace GP.CLI
 						Erro = "Nome de Ambiente apontado não é uma pasta";
 					else
 						Erro = "Pasta não existe ou não possui metadados";
-					AnsiConsole.MarkupLine(Erro);
-					return -1;
+					throw new Exception(Erro);
 				}
 
 			}
 
 			Pasta Pasta = Mapeador.MapearPastaRaiz(raiz);
 
-			var TreeRoot = new Tree(raiz.Name)
-				.Guide(TreeGuide.BoldLine);
+
+			var TreeRoot = new Tree("");
 
 
 			if (settings.profundidade == OptionTipoAmbiente.pas)
@@ -77,19 +70,19 @@ namespace GP.CLI
 		static void ListarPastas(Pasta pasta, IHasTreeNodes tree)
 		{
 			foreach (var subPasta in pasta.Ambientes.OfType<Pasta>())
-				ListarPastas(subPasta, tree.AddNode($"[blue]{subPasta.Nome}[/]"));
+				ListarPastas(subPasta, tree.AddNode($"[blue]{subPasta.Nome.EscapeMarkup()}[/]"));
 		}
 		static void Listar(Pasta pasta, IHasTreeNodes tree, bool IncluirSubProjetos )
 		{
 			foreach (var ambiente in pasta.Ambientes)
 			{
 				if (ambiente is Pasta subPasta)
-					Listar(subPasta, tree.AddNode($"[blue]{subPasta.Nome}[/]"), IncluirSubProjetos);
+					Listar(subPasta, tree.AddNode($"[blue]{subPasta.Nome.EscapeMarkup()}[/]"), IncluirSubProjetos);
 				else {
-					var NodeProjeto = tree.AddNode(ambiente.Nome);
+					var NodeProjeto = tree.AddNode(ambiente.Nome.EscapeMarkup());
 					if(IncluirSubProjetos && ambiente is Projeto projeto && projeto.SubProjetos is not null)
 						foreach (var subProjeto in projeto.SubProjetos)
-							NodeProjeto.AddNode($"[yellow]+{subProjeto.Nome}[/]");
+							NodeProjeto.AddNode($"[yellow]+{subProjeto.Nome.EscapeMarkup()}[/]");
 				}
 			}
 		}

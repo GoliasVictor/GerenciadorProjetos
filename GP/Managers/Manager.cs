@@ -17,7 +17,8 @@ namespace GP
 			DotMetaManager.Default,
 			VsCodeManager.Default,
 			DotNetCoreManager.Default,
-			NPMManger.Default
+			NPMManger.Default,
+			GitManger.Default,
 		};
 		public static IManager GetManager(DirectoryInfo dir){
 			return null;

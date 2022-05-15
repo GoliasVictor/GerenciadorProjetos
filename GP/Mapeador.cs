@@ -66,7 +66,7 @@ namespace GP
 			foreach (Pasta pasta in Pastas) {
 				pasta.Ambientes = MapearDiretorio(pasta.Diretorio);
 			}
-			return Ambientes;
+			return Ambientes.OrderBy((a)=>a.Tipo).ThenBy((a)=> a.Nome).ToList();
 		}
 		public static Ambiente EncontrarAmbiente(DirectoryInfo Raiz, string Nome){
 			DirectoryInfo[] dirs =  Raiz.GetDirectories();

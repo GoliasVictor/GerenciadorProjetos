@@ -1,25 +1,30 @@
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace GP
 {
 	public static class Terminal{
-		public static async Task<string> Rodar(string Comando){
+
+		public static async Task<string> Rodar(string Arquivo, string argumentos,DirectoryInfo dir = null){
 			var psi = new ProcessStartInfo{
-				WorkingDirectory =  Environment.CurrentDirectory,
-				FileName = "/bin/bash",
-				Arguments = @$"-c ""{Comando}""",
+				WorkingDirectory =  dir?.FullName ?? Environment.CurrentDirectory,
+				FileName = Arquivo,
+				Arguments = argumentos,
 				RedirectStandardOutput = true,
+				RedirectStandardError =  true,
+				RedirectStandardInput =  true,
 				UseShellExecute = false,
 				CreateNoWindow = true
 			};
 
 			using var process = Process.Start(psi);
 			await process.WaitForExitAsync();
-
-			var output = process.StandardOutput.ReadToEnd();
-			return output;
+			return process.StandardOutput.ReadToEnd();
+		}
+		public static async Task<string> Rodar(string comando, DirectoryInfo dir = null ){
+			return await Rodar("/bin/bash",@$"-c ""{comando}""");
 		}
 	}
 }

@@ -8,10 +8,6 @@ using Spectre.Console.Cli;
 
 namespace GP.CLI
 {
-	class DadosContexto
-	{
-		public DirectoryInfo Raiz;
-	}
 
 	static partial class Program
 	{
@@ -19,36 +15,18 @@ namespace GP.CLI
 		static Stopwatch sw = new Stopwatch();
 		static int Main(string[] args)
 		{
-#if TEST
-			var strRaiz = Environment.GetEnvironmentVariable("TEST_DEV_DIR");
-			args = args.Length > 0 ? args : "l -t 1 -r /home/jvsb/Dev/Projetos".Split();
-#else
-            var strRaiz = Environment.GetEnvironmentVariable("DEV_DIR");
-#endif
-
-			if (strRaiz is null)
-				return -1;
-			var contexto = new DadosContexto
-			{
-				Raiz = new DirectoryInfo(strRaiz)
-			};
+            #if TEST
+				args = args.Length > 0 ? args : "l -t 1 -r ../AmbienteTest/".Split();
+            #endif
 
 			var app = new CommandApp();
 			app.Configure(config =>
 			{
 				config.SetApplicationName("gp");
 
-				config.AddCommand<ComandoAbrir>("abrir")
-						  .WithAlias("a")
-						  .WithData(contexto);
-
-				config.AddCommand<ComandoListar>("listar")
-					  .WithAlias("l")
-					  .WithData(contexto);
-
-				config.AddCommand<ComandoCriar>("criar")
-					  .WithAlias("c")
-					  .WithData(contexto);
+				config.AddCommand<ComandoAbrir>("abrir"  ).WithAlias("a");
+				config.AddCommand<ComandoListar>("listar").WithAlias("l");
+				config.AddCommand<ComandoCriar>("criar"  ).WithAlias("c");
 			});
 			return app.Run(args);
 

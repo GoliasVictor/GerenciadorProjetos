@@ -1,6 +1,6 @@
 using System;
 using Spectre.Console.Cli;
-
+using Spectre.Console;
 namespace GP.CLI
 {
 	
@@ -12,8 +12,7 @@ namespace GP.CLI
 		}
 		public override int Execute(CommandContext context, Settings settings)
 		{
-			var Contexto =  (DadosContexto)context.Data;
-			Console.WriteLine(settings.Nome);
+			AnsiConsole.MarkupLine(settings.Nome.EscapeMarkup());
 			return 0;
 		}
 	} 
