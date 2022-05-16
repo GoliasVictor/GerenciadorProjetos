@@ -51,8 +51,10 @@ namespace GP
 			foreach (var subDir in dir.GetDirectories())
 			{
 				Meta subProjeto = GetMetaProjeto(subDir);
-				if(subProjeto is not null)
+				if(subProjeto is not null){
+					 subProjeto.Caminho = Path.GetRelativePath(dir.FullName,subDir.FullName) ;
 					SubProjetos.Add(subProjeto);
+				}
 			}
 
 			var meta = new Meta(){

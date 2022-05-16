@@ -11,7 +11,7 @@ namespace GP
 	
 	public abstract class Ambiente
 	{
-		//TODO: Adicinoar palavras chaves
+		//TODO: Adicinoar palavras chaves, Adicionar Esconder e esconder filhos
 		public string Nome { get; set; }
 		public string Descricao { get; set; }
 		public DirectoryInfo Diretorio { get; set; }

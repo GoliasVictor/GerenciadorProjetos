@@ -1,4 +1,6 @@
+using System;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 namespace GP
 {
@@ -49,6 +51,10 @@ namespace GP
 		{
 			Pai = pai;
 			Caminho = meta.Caminho;
+			if(meta.Caminho is null)
+				throw new MetadadosInvalidosException("Sem caminho definido");
+			if(string.IsNullOrWhiteSpace(Nome ))
+				Nome =  Path.GetFileName(meta.Caminho);
 		}
 		public override string ToString()
 		{

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using Spectre.Console.Cli;
 using Spectre.Console;
+using Spectre.Console.Rendering;
 
 namespace GP.CLI
 {
@@ -13,22 +14,27 @@ namespace GP.CLI
 
 	sealed class ComandoListar : Command<ComandoListar.Settings>
 	{
-			public sealed class Settings : RootSettings
-			{
-				//substituir por commandArgument
-				[CommandOption("-p|--pasta")]
-				public string NomePasta { get; set; }
+		public sealed class Settings : RootSettings
+		{
+			[CommandArgument(0, "[pasta]")]
+			[Description("Pasta que deve ser listada")]
+			public string NomePasta { get; set; }
 
-	
-				
-				[Description("Profundidade maxima da listagem, pas: apenas pastas, prj: pastas e projetos, sprj: pastas, projetos e subprojetos")]
-				[CommandOption("-t|--tipo-maximo")]
-				[DefaultValue(OptionTipoAmbiente.prj)]
-				public OptionTipoAmbiente profundidade {get;set;}
+			[Description("tipo maximo da listagem, pas: apenas pastas, prj: pastas e projetos, sprj: pastas, projetos e subprojetos")]
+			[CommandOption("-t|--tipo")]
+			[DefaultValue(OptionTipoAmbiente.prj)]
+			public OptionTipoAmbiente tipoMaximo { get; set; }
+			[CommandOption("-p|--planificar")]
+			[DefaultValue(false)]
+			public bool Planificar { get; set; }
 
-			}
+			[CommandOption("-m|--maxima-profundidade")]
+			[DefaultValue(int.MaxValue)]
+			public int profundidade { get; set; }
 
+		}
 
+		OptionTipoAmbiente tipoMaximo;
 		public override int Execute(CommandContext context, Settings settings)
 		{
 			var raiz = settings.Raiz;
@@ -50,39 +56,67 @@ namespace GP.CLI
 				}
 
 			}
-
+			tipoMaximo = settings.tipoMaximo;
 			Pasta Pasta = Mapeador.MapearPastaRaiz(raiz);
-
-
-			var TreeRoot = new Tree("");
-
-
-			if (settings.profundidade == OptionTipoAmbiente.pas)
-				ListarPastas(Pasta, TreeRoot);
+			IRenderable result = null;
+			if (settings.Planificar)
+			{
+				result = new Markup(ListarPastas(Pasta, new StringBuilder(), settings.profundidade).ToString());
+			}
 			else
-				Listar(Pasta,TreeRoot,settings.profundidade == OptionTipoAmbiente.sprj);
+			{
+				var TreeRoot = new Tree("");
+				Arvore(Pasta, TreeRoot, settings.profundidade);
+				result = TreeRoot;
+			}
 
-			AnsiConsole.Write(TreeRoot);
-
+			AnsiConsole.Write(result);
 			return 0;
 		}
 
-		static void ListarPastas(Pasta pasta, IHasTreeNodes tree)
+		StringBuilder ListarPastas(Pasta pasta, StringBuilder sb, int profundidadeMaxima, string Prefixo = "")
 		{
-			foreach (var subPasta in pasta.Ambientes.OfType<Pasta>())
-				ListarPastas(subPasta, tree.AddNode($"[blue]{subPasta.Nome.EscapeMarkup()}[/]"));
+			if (profundidadeMaxima < 0)
+				return sb;
+			void NovaLinha(string valor)
+			{
+				sb.AppendLine($"{Prefixo}{valor}");
+			}
+			foreach (var ambiente in pasta.Ambientes)
+			{
+				var nome = ambiente.Nome.EscapeMarkup();
+
+				if (ambiente is Pasta subPasta)
+				{
+					NovaLinha($"[blue]{nome}[/]");
+					ListarPastas(subPasta, sb, profundidadeMaxima - 1, Prefixo + $"[blue]{nome}[/]/");
+				}
+				else if (tipoMaximo >= OptionTipoAmbiente.prj && ambiente is Projeto projeto)
+				{
+					NovaLinha($"{nome}");
+
+					if (tipoMaximo == OptionTipoAmbiente.sprj && projeto.SubProjetos is not null)
+						foreach (var subProjeto in projeto.SubProjetos)
+							NovaLinha($"[yellow]+ {subProjeto.Nome.EscapeMarkup()}[/]");
+				}
+			}
+			return sb;
 		}
-		static void Listar(Pasta pasta, IHasTreeNodes tree, bool IncluirSubProjetos )
+
+		void Arvore(Pasta pasta, IHasTreeNodes tree, int profundidadeMaxima)
 		{
+			if (profundidadeMaxima < 0)
+				return;
 			foreach (var ambiente in pasta.Ambientes)
 			{
 				if (ambiente is Pasta subPasta)
-					Listar(subPasta, tree.AddNode($"[blue]{subPasta.Nome.EscapeMarkup()}[/]"), IncluirSubProjetos);
-				else {
+					Arvore(subPasta, tree.AddNode($"[blue]{subPasta.Nome.EscapeMarkup()}[/]"), profundidadeMaxima - 1);
+				else if (tipoMaximo >= OptionTipoAmbiente.prj)
+				{
 					var NodeProjeto = tree.AddNode(ambiente.Nome.EscapeMarkup());
-					if(IncluirSubProjetos && ambiente is Projeto projeto && projeto.SubProjetos is not null)
+					if (tipoMaximo == OptionTipoAmbiente.sprj && ambiente is Projeto projeto && projeto.SubProjetos is not null)
 						foreach (var subProjeto in projeto.SubProjetos)
-							NodeProjeto.AddNode($"[yellow]+{subProjeto.Nome.EscapeMarkup()}[/]");
+							NodeProjeto.AddNode($"[yellow]+ {subProjeto.Nome.EscapeMarkup()}[/]");
 				}
 			}
 		}

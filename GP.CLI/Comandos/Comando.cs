@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.IO;
 using Spectre.Console.Cli;
 
@@ -8,13 +9,8 @@ namespace GP.CLI
 
 		[CommandOption("-r|--raiz")]
 		[CaminhoDiretorio(true, "Diretorio não existe FAMILIA")]
-		public string strRaiz
-		{
-			get => Raiz.FullName;
-			init => Raiz = new DirectoryInfo(value ?? VarsAmbiente.DiretorioDeDesenvolvimento);
-		}
-		public DirectoryInfo Raiz;
-
+		public string strRaiz { get; init; }
+		public DirectoryInfo Raiz => new DirectoryInfo(strRaiz ?? VarsAmbiente.DiretorioDeDesenvolvimento);
 	}
 
 }

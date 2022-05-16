@@ -16,10 +16,9 @@ namespace GP.CLI
 		public override int Execute(CommandContext context, Settings settings)
 		{
 			Ambiente ambiente = Mapeador.EncontrarAmbiente(settings.Raiz, settings.Nome);
-			if (ambiente is null){
-				AnsiConsole.MarkupLine("Projeto não encontrado");
-				return 	-1;
-			}
+			if (ambiente is null)			
+				throw new Exception("Projeto não encontrado");
+			
 			ambiente.Abrir();
 			return 0;
 		}

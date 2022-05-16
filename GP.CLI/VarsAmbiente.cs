@@ -8,7 +8,7 @@ namespace GP.CLI
 				#if TEST
 					return Environment.GetEnvironmentVariable("TEST_DEV_DIR");
 				#else
-					return Environment.GetEnvironmentVariable("DEV_DIR");
+					return Environment.GetEnvironmentVariable("DEV_DIR") ?? throw new Exception("Ambiente de desenvolvimento indefinido");
 				#endif
 			}
 		}
