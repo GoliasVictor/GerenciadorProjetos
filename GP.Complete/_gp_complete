@@ -1,0 +1,9 @@
+#!/bin/bash
+
+_gp_complete() 
+{ 
+  local curr_arg; 
+  curr_arg=${COMP_WORDS[COMP_CWORD]}
+  IFS=$'\n' COMPREPLY=($(./GP.Complete ${COMP_WORDS[*]}))
+}
+complete -F _gp_complete gp

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using System.Threading.Tasks;
+using System.Collections.Concurrent;
 
 namespace GP
 {
@@ -16,7 +17,8 @@ namespace GP
 		public static Meta ObterMetadados(DirectoryInfo dir)
 		{
 			Meta meta = AllManager.GetMeta(dir);
-			if(meta is not null){
+			if (meta is not null)
+			{
 				meta.Origem = dir;
 				meta.Nome ??= dir.Name;
 				return meta;
@@ -38,8 +40,8 @@ namespace GP
 		public static List<Ambiente> MapearDiretorio(DirectoryInfo Raiz)
 		{
 			DirectoryInfo[] Dirs = Raiz.GetDirectories();
-			var Ambientes = new List<Ambiente>();
-			var Pastas =  new List<Pasta>();
+			var Ambientes = new ConcurrentBag<Ambiente>();
+			var Pastas = new ConcurrentBag<Pasta>();
 			foreach (var Dir in Dirs)
 			{
 				Meta meta;
@@ -47,29 +49,32 @@ namespace GP
 				{
 					meta = ObterMetadados(Dir);
 				}
-				catch (MetadadosInvalidosException) 
+				catch (MetadadosInvalidosException)
 				{
 					continue;
 				}
-				if(meta is null)
+				if (meta is null)
 					continue;
 				var ambiente = meta.ToAmbiente();
 				Ambientes.Add(ambiente);
-				if(ambiente is Pasta pasta)
+				if (ambiente is Pasta pasta)
 					Pastas.Add(pasta);
-					
-
 			}
-			//Parallel.ForEach(Pastas,(pasta)=>{
-			//	pasta.Ambientes = MapearDiretorio(pasta.Diretorio);
-			//});
+			Parallel.ForEach(Pastas, (pasta) =>
+			{
+				pasta.Ambientes = MapearDiretorio(pasta.Diretorio);
+			});
+			/*
 			foreach (Pasta pasta in Pastas) {
 				pasta.Ambientes = MapearDiretorio(pasta.Diretorio);
 			}
-			return Ambientes.OrderBy((a)=>a.Tipo).ThenBy((a)=> a.Nome).ToList();
+			*/
+
+			return Ambientes.OrderBy((a) => a.Tipo).ThenBy((a) => a.Nome).ToList();
 		}
-		public static Ambiente EncontrarAmbiente(DirectoryInfo Raiz, string Nome){
-			DirectoryInfo[] dirs =  Raiz.GetDirectories();
+		public static Ambiente EncontrarAmbiente(DirectoryInfo Raiz, string Nome)
+		{
+			DirectoryInfo[] dirs = Raiz.GetDirectories();
 			var pastas = new List<DirectoryInfo>();
 			foreach (var dir in dirs)
 			{
@@ -82,17 +87,17 @@ namespace GP
 				{
 					continue;
 				}
-				if(meta is null)
+				if (meta is null)
 					continue;
-				if(meta.Nome.ToLower() == Nome.ToLower())
+				if (meta.Nome.ToLower() == Nome.ToLower())
 					return meta.ToAmbiente();
-				if(meta.Tipo is TipoAmbiente.Pasta)
+				if (meta.Tipo is TipoAmbiente.Pasta)
 					pastas.Add(dir);
 			}
-			foreach (var pasta in pastas )
+			foreach (var pasta in pastas)
 			{
 				var ambiente = EncontrarAmbiente(pasta, Nome);
-				if(ambiente is not null)
+				if (ambiente is not null)
 					return ambiente;
 			}
 			return null;
@@ -108,13 +113,16 @@ namespace GP
 			pasta.Ambientes = MapearDiretorio(Raiz);
 			return pasta;
 		}
-		public static string ReadAllText(this FileInfo file){
+		public static string ReadAllText(this FileInfo file)
+		{
 			return File.ReadAllText(file.FullName);
 		}
-		public static FileInfo GetFile(this DirectoryInfo dir, string pathToFile){
+		public static FileInfo GetFile(this DirectoryInfo dir, string pathToFile)
+		{
 			return new FileInfo(Path.GetFullPath(Path.Combine(dir.FullName, pathToFile)));
 		}
-		public static DirectoryInfo GetDirectory(this DirectoryInfo dir, string pathToDirectory){
+		public static DirectoryInfo GetDirectory(this DirectoryInfo dir, string pathToDirectory)
+		{
 			return new DirectoryInfo(Path.GetFullPath(Path.Combine(dir.FullName, pathToDirectory)));
 		}
 	}

@@ -7,8 +7,12 @@ namespace GP
 {
 	class VsCodeManager : IManager
 	{
+		record folder(
+			string path,
+			string name
+		);
 		record MetaVsCode(
-			(string path, string name)[] folders
+			folder[] folders
 		);
 		VsCodeManager()
 		{
@@ -64,7 +68,7 @@ namespace GP
 			});
 			var meta = new Meta()
 			{
-				Nome = Path.GetFileNameWithoutExtension(file.Name),
+				Nome = dir.Name,
 				ComandoAbrir = $"code {file.FullName}",
 				Tipo = TipoAmbiente.Projeto,
 				SubProjetos = SubProjetos.DefaultIfEmpty()?.ToArray()

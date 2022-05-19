@@ -15,19 +15,20 @@ namespace GP.CLI
 		static int Main(string[] args)
 		{
             #if TEST
-				args = args.Length > 0 ? args : "l -t 0 -r ../AmbienteTest/".Split();
+				args = args.Length > 0 ? args : "l -t 1 -p ".Split();
             #endif
 			
-
 			var app = new CommandApp();
 			app.Configure(config =>
 			{
 				config.SetApplicationName("gp");
 
-				config.AddCommand<ComandoAbrir>("abrir"  ).WithAlias("a");
-				config.AddCommand<ComandoListar>("listar").WithAlias("l");
-				config.AddCommand<ComandoCriar>("criar"  ).WithAlias("c");
-
+	
+				config.AddCommand<ComandoAbrir>("abrir"   ).WithAlias("a");
+				config.AddCommand<ComandoCriar>("criar"   ).WithAlias("c");
+				config.AddCommand<ComandoDir  >("dir"     ).WithAlias("d").WithAlias("diretorio");
+				config.AddCommand<ComandoListar>("listar" ).WithAlias("l");
+				
 			});
 			return app.Run(args);
 		}
