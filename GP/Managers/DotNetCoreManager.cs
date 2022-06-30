@@ -61,7 +61,7 @@ namespace GP
 				Nome =  Path.GetFileNameWithoutExtension(file.Name),
 				Tipo =  TipoAmbiente.Projeto,
 				Linguagem = ".Net",
-  				SubProjetos = SubProjetos.DefaultIfEmpty().ToArray()
+  				SubProjetos = SubProjetos.ToArray()
 			};
 
 			return meta;

@@ -1,5 +1,6 @@
 using System;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.IO;
 
 namespace GP
@@ -33,25 +34,19 @@ namespace GP
 
 			if(string.IsNullOrWhiteSpace(json))
 				throw new MetadadosInvalidosException();
-			NPMMeta npmMeta;
+			var meta = new Meta(){ 
+				Linguagem = "js"
+			};
 			try {
-				npmMeta = JsonSerializer.Deserialize<NPMMeta>(json,JsonHelper.Options);
+				var jmeta = JsonSerializer.Deserialize<JsonObject>(json,JsonHelper.Options);
+				meta.Nome = (string)jmeta["name"];
+				meta.Descricao =  (string)jmeta["description"];
 			}
 			catch (Exception e) {
 				throw new MetadadosInvalidosException(null, e);
 			}
-			var meta = new Meta()
-			{
-				Nome = npmMeta.name,
-				Descricao = npmMeta.description,
-				Linguagem = "js"
-			};
+		
 			return meta;
-			//JsonElement? scriptsOrNull = jsonObject.GetProp("scripts");
-			//if( scriptsOrNull is JsonElement scripts)
-			//	if(scripts.ValueKind == JsonValueKind.Object)
-			//		if(scripts.ToCollection().GetProp("start") is not null)
-			//			meta.ComandoRodar="npm start"
 		}
 
 	}

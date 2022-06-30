@@ -1,6 +1,7 @@
 using System;
 using System.Text.Json;
 using System.IO;
+using System.Text.Json.Nodes;
 
 namespace GP
 {
@@ -38,7 +39,7 @@ namespace GP
 			if(string.IsNullOrWhiteSpace(json))
 				return new Meta();
 			try{
-				return JsonSerializer.Deserialize<Meta>(json,JsonHelper.Options);
+				return Meta.fromJson(JsonSerializer.Deserialize<JsonObject>(json,JsonHelper.Options));
 			}
 			catch (Exception e) {
 				throw new MetadadosInvalidosException(null, e);

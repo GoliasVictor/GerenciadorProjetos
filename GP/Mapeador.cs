@@ -64,11 +64,6 @@ namespace GP
 			{
 				pasta.Ambientes = MapearDiretorio(pasta.Diretorio);
 			});
-			/*
-			foreach (Pasta pasta in Pastas) {
-				pasta.Ambientes = MapearDiretorio(pasta.Diretorio);
-			}
-			*/
 
 			return Ambientes.OrderBy((a) => a.Tipo).ThenBy((a) => a.Nome).ToList();
 		}
