@@ -2,6 +2,8 @@ using System;
 using System.Text.Json;
 using System.IO;
 using System.Text.Json.Nodes;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace GP
 {
@@ -34,12 +36,37 @@ namespace GP
 		public static string MetaToJson(Meta meta){
 			return JsonSerializer.Serialize<Meta>(meta,JsonHelper.Options);
 		}
+		public static Meta MetaFromJson(JsonObject jmeta){
+			var meta =  new Meta();
+			meta.Nome		  = (string)jmeta[nameof(Meta.Nome)];
+			meta.Descricao	  = (string)jmeta[nameof(Meta.Descricao)];
+			meta.Linguagem	  = (string)jmeta[nameof(Meta.Linguagem)];
+			meta.ComandoAbrir = (string)jmeta[nameof(Meta.ComandoAbrir)];
+			meta.Caminho	  = (string)jmeta[nameof(Meta.Caminho)];
+			TipoAmbiente tipo;
+			Enum.TryParse<TipoAmbiente>((string)jmeta[nameof(Meta.Tipo)], out tipo );
+			meta.Tipo = tipo;
+			var jnSubProjs = jmeta[nameof(Meta.SubProjetos)] ;
+			if(jnSubProjs is JsonArray jSubProjs){
+				var SubProjs = jSubProjs.Select( subproj => MetaFromJson(subproj.AsObject()));
+				meta.SubProjetos = SubProjs.ToArray();
+			}			
+			var jnScripts = jmeta[nameof(Meta.Scripts)]; 
+			if( jnScripts is JsonObject jScripts){
+				//Verificar depois o que acontece se value não for string
+				meta.Scripts = jScripts.ToDictionary(
+					jScript => jScript.Key, 
+					jScript => (string)jScript.Value 
+				);
+			};
+			return meta;
+		}
 		public static Meta JsonToMeta(string json)
 		{
 			if(string.IsNullOrWhiteSpace(json))
 				return new Meta();
 			try{
-				return Meta.fromJson(JsonSerializer.Deserialize<JsonObject>(json,JsonHelper.Options));
+				return MetaFromJson(JsonSerializer.Deserialize<JsonObject>(json,JsonHelper.Options));
 			}
 			catch (Exception e) {
 				throw new MetadadosInvalidosException(null, e);

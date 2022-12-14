@@ -1,5 +1,5 @@
 <Project>
  <PropertyGroup>
-   <DefineConstants>PUBLISH</DefineConstants>
+   <DefineConstants>TEST</DefineConstants>
  </PropertyGroup>
 </Project>

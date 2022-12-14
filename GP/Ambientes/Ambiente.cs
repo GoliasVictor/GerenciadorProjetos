@@ -16,6 +16,7 @@ namespace GP
 		public string Descricao { get; set; }
 		public DirectoryInfo Diretorio { get; set; }
 		public abstract TipoAmbiente Tipo { get; }
+		
 		protected Ambiente(){
 
 		}

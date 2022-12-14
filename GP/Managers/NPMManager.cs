@@ -2,6 +2,7 @@ using System;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.IO;
+using System.Linq;
 
 namespace GP
 {
@@ -41,6 +42,13 @@ namespace GP
 				var jmeta = JsonSerializer.Deserialize<JsonObject>(json,JsonHelper.Options);
 				meta.Nome = (string)jmeta["name"];
 				meta.Descricao =  (string)jmeta["description"];
+				var jnScripts = jmeta["scripts"]; 
+				if( jnScripts is JsonObject jScripts){
+					meta.Scripts = jScripts.ToDictionary(
+						jScript => jScript.Key, 
+						jScript => (string)jScript.Value 
+					);
+				}
 			}
 			catch (Exception e) {
 				throw new MetadadosInvalidosException(null, e);

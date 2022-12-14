@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -10,6 +11,7 @@ namespace GP
 		public override TipoAmbiente Tipo => TipoAmbiente.Projeto;
 		public string Linguagem { get; set; }
 		public string ComandoAbrir { get; set; }
+		public Dictionary<string, string> Scripts { get; set; }
 
 		public SubProjeto[] SubProjetos { get; set; }
 		public Projeto(Meta meta) : base(meta)
@@ -32,6 +34,13 @@ namespace GP
 			} else {
 				_ = Terminal.Rodar($"code {Diretorio.FullName}");
 			}
+		}
+		public void Rodar(string NomeScript){
+			
+			if(Scripts.TryGetValue(NomeScript, out string ComandoScript)){
+				_ = Terminal.Rodar(ComandoScript);
+			}
+
 		}
 
 	}

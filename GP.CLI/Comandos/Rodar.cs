@@ -6,12 +6,16 @@ using Spectre.Console.Cli;
 namespace GP.CLI
 {
 
-	sealed class ComandoAbrir : Command<ComandoAbrir.Settings>
+	sealed class ComandoRodar : Command<ComandoRodar.Settings>
 	{
 		public sealed class Settings : RootSettings
 		{
-			[CommandArgument(0, "<PROJETO>")]
-			public string Nome { get; set; }
+
+			[CommandArgument(0,"<SCRIPT>")]
+			public string Script { get; set; }
+
+			[CommandOption("-p|--projeto")]
+			public string Projeto { get; set; }
 		}
 		public override int Execute(CommandContext context, Settings settings)
 		{
@@ -19,7 +23,7 @@ namespace GP.CLI
 			if (ambiente is null)			
 				throw new Exception("Projeto não encontrado");
 			
-			ambiente.Abrir();
+			ambiente.Rodar(settings.Script);
 			return 0;
 		}
 	}

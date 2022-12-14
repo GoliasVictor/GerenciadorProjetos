@@ -1,0 +1,6 @@
+- [ ] Metadados: Scripts
+- [ ] Metadados: Tags
+- [ ] Comando: Rodar
+- [ ] Comando: Mover
+- [ ] Comando: Arquivar
+- [ ] Comando: Criar
