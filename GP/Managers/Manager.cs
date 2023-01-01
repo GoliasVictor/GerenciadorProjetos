@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace GP
 {
-	interface IManager{
+	public interface IManager{
 		bool EhAmbiente(DirectoryInfo dir);
 		
 		Meta GetMeta(DirectoryInfo dir);
@@ -31,10 +31,10 @@ namespace GP
 		public static Meta GetMeta(DirectoryInfo dir)
 		{
 			IManager manager = Managers.FirstOrDefault( (m)=> m.EhAmbiente(dir));
-			if (manager is not null)
-				return manager.GetMeta(dir);
-			else	
-				return null;
+			Meta meta = manager?.GetMeta(dir);
+			if(meta is not null)
+				meta.Manager = manager;
+			return meta;
 		}
 	}
 

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
+
 namespace GP
 {
 	public class Projeto : Ambiente
@@ -18,6 +20,7 @@ namespace GP
 		{
 			Linguagem = meta.Linguagem;
 			ComandoAbrir = meta.ComandoAbrir;
+			Scripts = meta.Scripts;
 			SubProjetos = meta.SubProjetos?.Select((metaSubProjeto) => new SubProjeto(metaSubProjeto, this)).ToArray();
 		}
 		
@@ -35,11 +38,13 @@ namespace GP
 				_ = Terminal.Rodar($"code {Diretorio.FullName}");
 			}
 		}
-		public void Rodar(string NomeScript){
+		public async Task Rodar(string NomeScript){
 			
+
 			if(Scripts.TryGetValue(NomeScript, out string ComandoScript)){
-				_ = Terminal.Rodar(ComandoScript);
+				await Terminal.Executar(ComandoScript,Diretorio);
 			}
+			else throw new InvalidOperationException("script não existe");
 
 		}
 

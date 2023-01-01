@@ -16,6 +16,7 @@ namespace GP
 		public string ComandoAbrir { get; set; }
 		public Meta[] SubProjetos { get; set; }
 		public string Caminho { get; set; }
+		public IManager Manager {get;set;}
 		public Dictionary<string, string> Scripts { get; set; }
 
 		[JsonIgnore]
