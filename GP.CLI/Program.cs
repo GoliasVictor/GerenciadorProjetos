@@ -14,15 +14,17 @@ namespace GP.CLI
 
 		static int Main(string[] args)
 		{
-			#if TEST
-				args = args.Length > 0 ? args : "r dev -p Joguim".Split();
-			#endif
+#if TEST
+				args = args.Length > 0 ? args :"r -p Joguim".Split();
+#endif
 			
 			var app = new CommandApp();
 			app.Configure(config =>
 			{
 				config.SetApplicationName("gp");
-				//config.SetExceptionHandler((ex) => AnsiConsole.WriteException(ex));
+#if  TEST
+				config.PropagateExceptions();
+#endif
 				config.AddCommand<ComandoAbrir>("abrir"   ).WithAlias("a");
 				config.AddCommand<ComandoCriar>("criar"   ).WithAlias("c");
 				config.AddCommand<ComandoDir  >("dir"     ).WithAlias("d").WithAlias("diretorio");

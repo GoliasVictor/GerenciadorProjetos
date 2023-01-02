@@ -4,16 +4,19 @@ using System.Text.Json.Serialization;
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace GP
 { 
 	public class Meta
 	{
-		public string Nome { get; set; }
+		[DefaultValue("")]
+		public string Nome { get; set; } = "";
 		public TipoAmbiente? Tipo { get; set; }
 		public string Descricao { get; set; }
 		public string Linguagem { get; set; }
 		public string ComandoAbrir { get; set; }
+		public string ComandoIniciar { get; set; }
 		public Meta[] SubProjetos { get; set; }
 		public string Caminho { get; set; }
 		public IManager Manager {get;set;}

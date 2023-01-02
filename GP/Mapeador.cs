@@ -45,6 +45,9 @@ namespace GP
 			foreach (var Dir in Dirs)
 			{
 				Meta meta;
+#if TEST
+				meta = ObterMetadados(Dir);
+#else
 				try
 				{
 					meta = ObterMetadados(Dir);
@@ -53,6 +56,8 @@ namespace GP
 				{
 					continue;
 				}
+#endif
+
 				if (meta is null)
 					continue;
 				var ambiente = meta.ToAmbiente();
@@ -74,6 +79,9 @@ namespace GP
 			foreach (var dir in dirs)
 			{
 				Meta meta;
+#if TEST
+				meta = ObterMetadados(dir);
+#else
 				try
 				{
 					meta = ObterMetadados(dir);
@@ -82,6 +90,8 @@ namespace GP
 				{
 					continue;
 				}
+#endif
+
 				if (meta is null)
 					continue;
 				if (meta.Nome.ToLower() == Nome.ToLower())

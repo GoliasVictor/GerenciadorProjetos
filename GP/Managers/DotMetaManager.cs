@@ -1,12 +1,46 @@
 using System;
-using System.Text.Json;
 using System.IO;
-using System.Text.Json.Nodes;
 using System.Linq;
 using System.Collections.Generic;
+using YamlDotNet.Serialization.NamingConventions;
+using YamlDotNet.Serialization;
 
 namespace GP
 {
+	class DictonaryNode  {
+		public DictonaryNode(Dictionary<object, object> dictionary)
+		{
+			Node = dictionary;
+		}
+
+		public Dictionary<object, object> Node {get;set;}
+
+		public object this[string key]{
+			get {
+				return Node.FirstOrDefault( (pair) => (pair.Key as string)?.ToLower() == key.ToLower()).Value;		
+			}
+		}
+		public T GetEnum<T>(string key)
+			where T : struct, System.Enum
+		{	
+			T value = default;
+			if(this[key] is string strValue)
+				Enum.TryParse<T>(strValue,out value);
+			return value;
+		}
+		public T[] GetArray<T>(string key){
+			var ListObject = this[key] as List<object>;
+			return ListObject?.OfType<T>().ToArray();
+		}
+		public T[] GetArrayOfObject<T>(string key, Func<Dictionary<object, object>,T> Parser){
+			var ListObject = this[key] as IEnumerable<object>;
+			return ListObject?.OfType<Dictionary<object, object>>().Select(Parser).ToArray();
+		}
+		public DictonaryNode GetDictonaryNode(string key){
+			var dictionary = this[key] as Dictionary<object, object>;
+			return new DictonaryNode(dictionary);
+		} 
+	}
 	class DotMetaManager : IManager
 	{
 		DotMetaManager()
@@ -28,45 +62,45 @@ namespace GP
 		
 		public static Meta GetMeta(DirectoryInfo dir)
 		{
-			var meta = JsonToMeta(dir.GetFile(pathMetaFile).ReadAllText());
+			var meta = YAMLToMeta(dir.GetFile(pathMetaFile).ReadAllText());
 			return meta;
 		}
 		Meta IManager.GetMeta(DirectoryInfo dir) => GetMeta(dir);
 
-		public static string MetaToJson(Meta meta){
-			return JsonSerializer.Serialize<Meta>(meta,JsonHelper.Options);
+		public static string MetaToYAML(Meta meta){
+
+			var serializer = new SerializerBuilder()
+				.WithNamingConvention(CamelCaseNamingConvention.Instance)
+				.Build();
+			return serializer.Serialize(meta);
 		}
-		public static Meta MetaFromJson(JsonObject jmeta){
+		public static Meta MetaFromYAML(DictonaryNode dmeta){
 			var meta =  new Meta();
-			meta.Nome		  = (string)jmeta[nameof(Meta.Nome)];
-			meta.Descricao	  = (string)jmeta[nameof(Meta.Descricao)];
-			meta.Linguagem	  = (string)jmeta[nameof(Meta.Linguagem)];
-			meta.ComandoAbrir = (string)jmeta[nameof(Meta.ComandoAbrir)];
-			meta.Caminho	  = (string)jmeta[nameof(Meta.Caminho)];
-			TipoAmbiente tipo;
-			Enum.TryParse<TipoAmbiente>((string)jmeta[nameof(Meta.Tipo)], out tipo );
-			meta.Tipo = tipo;
-			var jnSubProjs = jmeta[nameof(Meta.SubProjetos)] ;
-			if(jnSubProjs is JsonArray jSubProjs){
-				var SubProjs = jSubProjs.Select( subproj => MetaFromJson(subproj.AsObject()));
-				meta.SubProjetos = SubProjs.ToArray();
-			}			
-			var jnScripts = jmeta[nameof(Meta.Scripts)]; 
-			if( jnScripts is JsonObject jScripts){
-				//Verificar depois o que acontece se value não for string
-				meta.Scripts = jScripts.ToDictionary(
-					jScript => jScript.Key, 
-					jScript => (string)jScript.Value 
-				);
-			};
+			meta.Nome		  = dmeta[nameof(Meta.Nome)] as string;
+			meta.Descricao	  = dmeta[nameof(Meta.Descricao)] as string;
+			meta.Linguagem	  = dmeta[nameof(Meta.Linguagem)] as string;
+			meta.ComandoAbrir = dmeta[nameof(Meta.ComandoAbrir)] as string;
+			meta.Caminho	  = dmeta[nameof(Meta.Caminho)] as string;
+			meta.Tipo = dmeta.GetEnum<TipoAmbiente>(nameof(Meta.Tipo));
+			meta.SubProjetos = dmeta.GetArrayOfObject<Meta>(nameof(Meta.SubProjetos), (subProj)=>{
+				return MetaFromYAML(new DictonaryNode(subProj));
+			});	
+			meta.Scripts = dmeta.GetDictonaryNode(nameof(Meta.Scripts)).Node?.ToDictionary(
+				jScript => (string)jScript.Key, 
+				jScript => (string)jScript.Value 
+			);
 			return meta;
 		}
-		public static Meta JsonToMeta(string json)
+		public static Meta YAMLToMeta(string json)
 		{
 			if(string.IsNullOrWhiteSpace(json))
 				return new Meta();
 			try{
-				return MetaFromJson(JsonSerializer.Deserialize<JsonObject>(json,JsonHelper.Options));
+				var deserializer = new DeserializerBuilder()
+					.WithNamingConvention(CamelCaseNamingConvention.Instance)  // see height_in_inches in sample yml 
+					.Build();
+
+				return MetaFromYAML(new DictonaryNode(deserializer.Deserialize<Dictionary<object, object>>(json)));
 			}
 			catch (Exception e) {
 				throw new MetadadosInvalidosException(null, e);

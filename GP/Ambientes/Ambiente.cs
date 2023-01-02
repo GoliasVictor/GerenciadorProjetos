@@ -44,7 +44,7 @@ namespace GP
 			if(DotMetaManager.EhAmbiente(Diretorio))	
 				throw new MetaJaExisteException();
 			Diretorio.Create();
-			string json = DotMetaManager.MetaToJson(this.ToMeta());	
+			string json = DotMetaManager.MetaToYAML(this.ToMeta());	
 			File.WriteAllText(DotMetaManager.FileMetadados(Diretorio).FullName,json);
 		}
 	}
