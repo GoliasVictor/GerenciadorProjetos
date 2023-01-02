@@ -15,7 +15,7 @@ namespace GP.CLI
 		static int Main(string[] args)
 		{
 #if TEST
-				args = args.Length > 0 ? args :"r -p Joguim".Split();
+				args = args.Length > 0 ? args :"r".Split();
 #endif
 			
 			var app = new CommandApp();

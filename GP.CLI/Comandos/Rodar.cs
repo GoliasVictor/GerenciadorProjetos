@@ -22,16 +22,16 @@ namespace GP.CLI
 		}
 		public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
 		{
-			Projeto ambiente = Mapeador.EncontrarAmbiente(settings.Raiz, settings.Projeto) as Projeto;
-			if (ambiente is null)			
-				throw new Exception("Projeto não encontrado");
-			if(string.IsNullOrWhiteSpace(settings.Script)){
-				if(ambiente.Scripts?.DefaultIfEmpty() is null)
-					AnsiConsole.WriteLine("O projeto não possue nenhum script definido");
-				else
-					MostrarScripts(ambiente.Scripts);
-			}
-			else await ambiente.Rodar(settings.Script);
+			var projeto = BuscadorAmbientes.BuscarProjetoAtual(settings.Raiz, settings.Projeto);
+			_ = projeto ?? throw new Exception("Projeto não encontrado");
+			
+			if(projeto.Scripts?.DefaultIfEmpty() is null)
+				throw new Exception("O projeto não possue nenhum script definido");
+			
+			if(string.IsNullOrWhiteSpace(settings.Script))
+				MostrarScripts(projeto.Scripts);
+			else 
+				await projeto.Rodar(settings.Script);
 			return 0;
 		}
 		void MostrarScripts(Dictionary<string, string> scripts){

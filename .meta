@@ -1,10 +1,7 @@
-{
-	"Nome": "GerenciadorProjetos",
-	"Tipo": "Projeto",
-	"Descricao": "",
-	"Linguagem": "csharp",
-	"ComandoAbrir": "code .",
-	"scripts":{
-		"publish":"dotnet publish -r linux-x64 -p:PublishSingleFile=true --self-contained false"
-	}
-}
+Nome: GerenciadorProjetos
+Tipo: Projeto
+Descricao: ''
+Linguagem: csharp
+ComandoAbrir: code .
+scripts:
+  publish: dotnet publish -r linux-x64 -p:PublishSingleFile=true -p:DebugType=embedded --self-contained false -o publish 

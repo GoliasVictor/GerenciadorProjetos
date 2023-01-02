@@ -12,7 +12,18 @@ namespace GP
 
 		public static Meta ObterMetadados(string Caminho)
 		{
+#if TEST
 			return ObterMetadados(new DirectoryInfo(Caminho));
+#else
+			try
+			{
+				return ObterMetadados(new DirectoryInfo(Caminho));
+			}
+			catch (MetadadosInvalidosException)
+			{
+				return null;
+			}
+#endif
 		}
 		public static Meta ObterMetadados(DirectoryInfo dir)
 		{
@@ -24,14 +35,6 @@ namespace GP
 				return meta;
 			}
 			return null;
-
-			//foreach (var parser in Parser.Parsers)
-			//{
-			//	if(parser.EhAmbiente(diretorio))
-			//		meta =  parser.GetMeta(diretorio);
-			//}
-
-
 		}
 		public static List<Ambiente> MapearDiretorio(string Raiz)
 		{
@@ -44,19 +47,7 @@ namespace GP
 			var Pastas = new ConcurrentBag<Pasta>();
 			foreach (var Dir in Dirs)
 			{
-				Meta meta;
-#if TEST
-				meta = ObterMetadados(Dir);
-#else
-				try
-				{
-					meta = ObterMetadados(Dir);
-				}
-				catch (MetadadosInvalidosException)
-				{
-					continue;
-				}
-#endif
+				Meta meta = ObterMetadados(Dir);
 
 				if (meta is null)
 					continue;
@@ -78,20 +69,7 @@ namespace GP
 			var pastas = new List<DirectoryInfo>();
 			foreach (var dir in dirs)
 			{
-				Meta meta;
-#if TEST
-				meta = ObterMetadados(dir);
-#else
-				try
-				{
-					meta = ObterMetadados(dir);
-				}
-				catch (MetadadosInvalidosException)
-				{
-					continue;
-				}
-#endif
-
+				Meta meta = ObterMetadados(dir);
 				if (meta is null)
 					continue;
 				if (meta.Nome.ToLower() == Nome.ToLower())
@@ -104,6 +82,22 @@ namespace GP
 				var ambiente = EncontrarAmbiente(pasta, Nome);
 				if (ambiente is not null)
 					return ambiente;
+			}
+			return null;
+		}
+		public static Ambiente EncontrarAmbientePai(DirectoryInfo Pasta)
+		{
+			var pastas = new List<DirectoryInfo>();
+			DirectoryInfo DiretorioAtual = Pasta;
+			Stack<DirectoryInfo> DiretoriosPais =  new();
+			while (DiretorioAtual != null){
+				DiretoriosPais.Push(DiretorioAtual);
+				DiretorioAtual = DiretorioAtual.Parent;
+			}
+			while(DiretoriosPais.TryPop(out var dir)){
+				Meta meta =  ObterMetadados(dir);
+				if(meta is not null && meta.Tipo == TipoAmbiente.Projeto)
+					return meta.ToAmbiente();
 			}
 			return null;
 		}
