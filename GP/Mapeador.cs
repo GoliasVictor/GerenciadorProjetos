@@ -7,40 +7,50 @@ using System.Collections.Concurrent;
 
 namespace GP
 {
-	public static class Mapeador
+	public class Mapeador
 	{
+		private readonly ILogger logger;
 
-		public static Meta ObterMetadados(string Caminho)
+		public Mapeador(ILogger logger)
 		{
-#if TEST
-			return ObterMetadados(new DirectoryInfo(Caminho));
-#else
+			this.logger = logger;
+		}
+
+		public Meta ObterMetadados(string Caminho)
+		{
+
+
+				return ObterMetadados(new DirectoryInfo(Caminho));
+
+		}
+		public Meta ObterMetadados(DirectoryInfo dir)
+		{
 			try
 			{
-				return ObterMetadados(new DirectoryInfo(Caminho));
-			}
-			catch (MetadadosInvalidosException)
-			{
+				Meta meta = AllManager.GetMeta(dir);
+				if (meta is not null)
+				{
+					meta.Origem = dir;
+					meta.Nome ??= dir.Name;
+					return meta;
+				}
 				return null;
 			}
-#endif
-		}
-		public static Meta ObterMetadados(DirectoryInfo dir)
-		{
-			Meta meta = AllManager.GetMeta(dir);
-			if (meta is not null)
+			catch (MetadadosInvalidosException ex)
 			{
-				meta.Origem = dir;
-				meta.Nome ??= dir.Name;
-				return meta;
+#if TEST
+				throw;
+#else
+				logger.LogAviso($"Metadados invalidos em {dir.FullName}, Motivo: {ex.Message} ");
+				return null;
+#endif
 			}
-			return null;
 		}
-		public static List<Ambiente> MapearDiretorio(string Raiz)
+		public List<Ambiente> MapearDiretorio(string Raiz)
 		{
 			return MapearDiretorio(new DirectoryInfo(Raiz));
 		}
-		public static List<Ambiente> MapearDiretorio(DirectoryInfo Raiz)
+		public List<Ambiente> MapearDiretorio(DirectoryInfo Raiz)
 		{
 			DirectoryInfo[] Dirs = Raiz.GetDirectories();
 			var Ambientes = new ConcurrentBag<Ambiente>();
@@ -63,7 +73,7 @@ namespace GP
 
 			return Ambientes.OrderBy((a) => a.Tipo).ThenBy((a) => a.Nome).ToList();
 		}
-		public static Ambiente EncontrarAmbiente(DirectoryInfo Raiz, string Nome)
+		public Ambiente EncontrarAmbiente(DirectoryInfo Raiz, string Nome)
 		{
 			DirectoryInfo[] dirs = Raiz.GetDirectories();
 			var pastas = new List<DirectoryInfo>();
@@ -85,7 +95,7 @@ namespace GP
 			}
 			return null;
 		}
-		public static Ambiente EncontrarAmbientePai(DirectoryInfo Pasta)
+		public Ambiente EncontrarAmbientePai(DirectoryInfo Pasta)
 		{
 			var pastas = new List<DirectoryInfo>();
 			DirectoryInfo DiretorioAtual = Pasta;
@@ -101,28 +111,17 @@ namespace GP
 			}
 			return null;
 		}
-		public static Pasta MapearPastaRaiz(string Raiz)
+		public Pasta MapearPastaRaiz(string Raiz)
 		{
 			return MapearPastaRaiz(new DirectoryInfo(Raiz));
 		}
-		public static Pasta MapearPastaRaiz(DirectoryInfo Raiz)
+		public Pasta MapearPastaRaiz(DirectoryInfo Raiz)
 		{
 			Pasta pasta = new Pasta(Raiz.Name);
 			pasta.Diretorio = Raiz;
 			pasta.Ambientes = MapearDiretorio(Raiz);
 			return pasta;
 		}
-		public static string ReadAllText(this FileInfo file)
-		{
-			return File.ReadAllText(file.FullName);
-		}
-		public static FileInfo GetFile(this DirectoryInfo dir, string pathToFile)
-		{
-			return new FileInfo(Path.GetFullPath(Path.Combine(dir.FullName, pathToFile)));
-		}
-		public static DirectoryInfo GetDirectory(this DirectoryInfo dir, string pathToDirectory)
-		{
-			return new DirectoryInfo(Path.GetFullPath(Path.Combine(dir.FullName, pathToDirectory)));
-		}
+
 	}
 }

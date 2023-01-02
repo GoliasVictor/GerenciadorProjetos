@@ -8,6 +8,7 @@ namespace GP.CLI
 
 	sealed class ComandoDir : Command<ComandoDir.Settings>
 	{
+		static Mapeador mapeador = new Mapeador(Logger.Default);
 		public sealed class Settings : RootSettings
 		{
 			[CommandArgument(0, "<PROJETO>")]
@@ -15,7 +16,7 @@ namespace GP.CLI
 		}
 		public override int Execute(CommandContext context, Settings settings)
 		{
-			Ambiente ambiente = Mapeador.EncontrarAmbiente(settings.Raiz, settings.Nome);
+			Ambiente ambiente = mapeador.EncontrarAmbiente(settings.Raiz, settings.Nome);
 			if (ambiente is not null)			
 				Console.WriteLine(ambiente.Diretorio.FullName);
 			return 0;

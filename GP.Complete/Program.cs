@@ -1,10 +1,12 @@
 ﻿
 namespace GP.Complete 
 {
+	
     internal class Program
     {
 		static string filtro="";
 		static string[] Comandos = new []{"abrir","listar","criar"};
+		static Mapeador mapeador = new Mapeador(null);
 
         static void Main(string[] args)
         {
@@ -27,7 +29,7 @@ namespace GP.Complete
 				case "l":
 				case "listar":
 					filtro = string.Join("",Args).ToLower();
-					var Pasta = Mapeador.MapearPastaRaiz(Environment.GetEnvironmentVariable("DEV_DIR"));
+					var Pasta = mapeador.MapearPastaRaiz(Environment.GetEnvironmentVariable("DEV_DIR"));
 					ImprimirNomes(Pasta);
 				break;
 				default: 

@@ -32,6 +32,12 @@ namespace GP
 		{
 			IManager manager = Managers.FirstOrDefault( (m)=> m.EhAmbiente(dir));
 			Meta meta = manager?.GetMeta(dir);
+			if(meta?.SubProjetos is not null){
+				foreach(var subproj in meta?.SubProjetos){	
+					if(string.IsNullOrEmpty(subproj?.Caminho))
+						throw new MetadadosInvalidosException("Caminho do projeto não definido");
+				}
+			}
 			if(meta is not null)
 				meta.Manager = manager;
 			return meta;

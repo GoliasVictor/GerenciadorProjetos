@@ -14,6 +14,7 @@ namespace GP.CLI
 
 	sealed class ComandoListar : Command<ComandoListar.Settings>
 	{
+		static Mapeador mapeador = new Mapeador(Logger.Default);
 		public sealed class Settings : RootSettings
 		{
 			[CommandArgument(0, "[pasta]")]
@@ -40,7 +41,7 @@ namespace GP.CLI
 			var raiz = settings.Raiz;
 			if (settings.NomePasta is not null)
 			{
-				var pasta = Mapeador.EncontrarAmbiente(raiz, settings.NomePasta);
+				var pasta = mapeador.EncontrarAmbiente(raiz, settings.NomePasta);
 				if (pasta is Pasta)
 				{
 					raiz = pasta.Diretorio;
@@ -57,7 +58,7 @@ namespace GP.CLI
 
 			}
 			tipoMaximo = settings.tipoMaximo;
-			Pasta Pasta = Mapeador.MapearPastaRaiz(raiz);
+			Pasta Pasta = mapeador.MapearPastaRaiz(raiz);
 			IRenderable result = null;
 			if (settings.Planificar)
 			{
