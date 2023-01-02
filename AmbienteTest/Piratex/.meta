@@ -1,0 +1,13 @@
+nome: Piratex
+tipo: Projeto
+comandoAbrir: code /home/jvsb/Dev/Projetos/GerenciadorProjetos/AmbienteTest/Piratex/Piratex.code-workspace
+subProjetos:
+- nome: Piratex
+  tipo: SubProjeto
+  caminho: "/home/jvsb/Dev/Projetos/GerenciadorProjetos/AmbienteTest/Piratex"
+- nome: server
+  tipo: SubProjeto
+  caminho: "/home/jvsb/Dev/Projetos/GerenciadorProjetos/AmbienteTest/Piratex/server"
+- nome: client
+  tipo: SubProjeto
+  caminho: "/home/jvsb/Dev/Projetos/GerenciadorProjetos/AmbienteTest/Piratex/client"

@@ -1,0 +1,16 @@
+Nome: Joguim
+Tipo: Projeto
+Descricao: Carlos
+SubProjetos:
+- Nome: Biblioteca
+  Tipo: Projeto
+  Descricao: ''
+  Caminho: "./Biblioteca"
+- Nome: Jogo
+  Tipo: Projeto
+  Descricao: ''
+  Caminho: "./Jogo"
+Scripts:
+  run: echo run
+  start: docker run hello-world
+  ionic: ionic
