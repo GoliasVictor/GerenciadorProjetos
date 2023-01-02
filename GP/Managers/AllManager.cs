@@ -3,13 +3,6 @@ using System.Linq;
 
 namespace GP
 {
-	public interface IManager{
-		bool EhAmbiente(DirectoryInfo dir);
-		
-		Meta GetMeta(DirectoryInfo dir);
-	} 
-
-
 	static class AllManager 
 	{
 
