@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel;
+using YamlDotNet.Serialization;
 
 namespace GP
 { 
@@ -18,11 +19,13 @@ namespace GP
 		public string ComandoAbrir { get; set; }
 		public string ComandoIniciar { get; set; }
 		public Meta[] SubProjetos { get; set; }
+		[YamlIgnore]
 		public string Caminho { get; set; }
+		[YamlIgnore]
 		public IManager Manager {get;set;}
 		public Dictionary<string, string> Scripts { get; set; }
 
-		[JsonIgnore]
+		[YamlIgnore]
 		public DirectoryInfo Origem {get;set;}
 		public Ambiente ToAmbiente(){
 			Ambiente Ambiente;

@@ -9,11 +9,6 @@ namespace GP
 
 	class NPMManger : IManager
 	{
-	
-		private record NPMMeta (
-			string name,
-			string description
-		);
 		NPMManger()
 		{
 
