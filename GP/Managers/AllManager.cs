@@ -10,7 +10,7 @@ namespace GP
 			DotMetaManager.Default,
 			VsCodeManager.Default,
 			DotNetCoreManager.Default,
-			NPMManger.Default,
+			NPMManager.Default,
 			GitManger.Default,
 		};
 		public static IManager GetManager(DirectoryInfo dir){
@@ -20,7 +20,6 @@ namespace GP
 		{
 			return Managers.Any((m) =>  m.EhAmbiente(dir));
 		}
-
 		public static Meta GetMeta(DirectoryInfo dir)
 		{
 			IManager manager = Managers.FirstOrDefault( (m)=> m.EhAmbiente(dir));

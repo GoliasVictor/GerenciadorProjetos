@@ -7,15 +7,15 @@ using System.Linq;
 namespace GP
 {
 
-	class NPMManger : IManager
+	class NPMManager : IManager
 	{
-		NPMManger()
+		NPMManager()
 		{
 
 		}
 
 
-		public static NPMManger Default => new NPMManger();
+		public static NPMManager Default => new NPMManager();
 
 		static string pathMetaFile => "./package.json";
 

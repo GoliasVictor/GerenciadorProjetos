@@ -66,7 +66,7 @@ namespace GP
 					.WithNamingConvention(CamelCaseNamingConvention.Instance)  // see height_in_inches in sample yml 
 					.Build();
 
-				return MetaFromYAML(new DictonaryNode(deserializer.Deserialize<Dictionary<object, object>>(json)));
+g				return MetaFromYAML(new DictonaryNode(deserializer.Deserialize<Dictionary<object, object>>(json)));
 			}
 			catch (Exception e) {
 				throw new MetadadosInvalidosException(null, e);
